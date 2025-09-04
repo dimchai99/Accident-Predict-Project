@@ -7,10 +7,11 @@
         <processorPath useClasspath="false">
           <entry name="$PROJECT_DIR$/../.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.36/5a30490a6e14977d97d9c73c924c1f1b5311ea95/lombok-1.18.36.jar" />
         </processorPath>
-        <module name="springBoot.main" />
+        <module name="com.example.springBoot.main" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="com.example.springBoot.main" target="21" />
       <module name="springBoot" target="21" />
       <module name="springBoot.main" target="21" />
       <module name="springBoot.test" target="21" />
@@ -18,6 +19,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="com.example.springBoot.main" options="-parameters" />
       <module name="springBoot" options="-parameters" />
       <module name="springBoot.main" options="-parameters" />
       <module name="springBoot.test" options="-parameters" />
