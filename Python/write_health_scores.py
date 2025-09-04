@@ -69,8 +69,9 @@ run_id = cur.lastrowid
 sql = """
       INSERT INTO health_score
       (asset_id, component_id, blade_replacement_id, ts, score, rul_cycles, state, method, params, source, run_id)
-      VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) \
+      VALUES (%s,%s,%s,NOW(),%s,%s,%s,%s,%s,%s,%s)
       """
+
 now = datetime.now(timezone.utc).replace(tzinfo=None)
 rows = []
 for s, st in zip(mse, states):
@@ -79,7 +80,6 @@ for s, st in zip(mse, states):
             1,              # asset_id (있으면 실제 값으로)
             None,           # component_id
             None,           # blade_replacement_id
-            now,            # ts
             float(s),       # score (0=건강 ~ 1=위험 의미로 사용)
             None,           # rul_cycles (있으면 입력)
             st,             # state
@@ -97,3 +97,30 @@ cur.execute("UPDATE pipeline_run SET status='success', ended_at=NOW() WHERE run_
 cur.close()
 conn.close()
 print(f"Inserted {len(rows)} rows into health_score (run_id={run_id}).")
+
+# DB 연결 후 cursor(cur) 만든 다음에 이 함수 추가/사용
+def get_or_create_asset_id(cursor, line_name="demo_line"):
+    cursor.execute("SELECT asset_id FROM asset WHERE line_name=%s LIMIT 1", (line_name,))
+    row = cursor.fetchone()
+    if row:
+        return int(row[0])
+    cursor.execute("INSERT INTO asset(line_name) VALUES (%s)", (line_name,))
+    return int(cursor.lastrowid)
+
+asset_id = get_or_create_asset_id(cur, "demo_line")
+
+# rows 만들 때 1 대신 asset_id 사용
+# ...
+rows.append((
+    asset_id,  # ← 여기!
+    None, None,
+    # ts는 이미 NOW()로 SQL에 넣고 있으면 생략
+    float(s),
+    None,
+    st,
+    "autoencoder_mse",
+    json.dumps({"thr": thr}),
+    "python_batch",
+    run_id,
+))
+
