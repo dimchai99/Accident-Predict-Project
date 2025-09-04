@@ -10,14 +10,11 @@
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_21">
     <output url="file://$MODULE_DIR$/../../springBoot/build/classes/java/main" />
     <exclude-output />
-    <content url="file://$MODULE_DIR$/../../springBoot/build/generated/sources/annotationProcessor/java/main">
-      <sourceFolder url="file://$MODULE_DIR$/../../springBoot/build/generated/sources/annotationProcessor/java/main" isTestSource="false" generated="true" />
-    </content>
     <content url="file://$MODULE_DIR$/../../springBoot/src/main">
       <sourceFolder url="file://$MODULE_DIR$/../../springBoot/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../../springBoot/src/main/resources" type="java-resource" />
     </content>
-    <orderEntry type="jdk" jdkName="21" jdkType="JavaSDK" />
+    <orderEntry type="jdk" jdkName="temurin-21" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: org.projectlombok:lombok:1.18.36" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-web:3.4.2" level="project" />
@@ -25,7 +22,6 @@
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-security:3.4.2" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-data-jpa:3.4.2" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-oauth2-client:3.4.2" level="project" />
-    <orderEntry type="library" name="Gradle: com.mysql:mysql-connector-j:8.4.0" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-json:3.4.2" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter:3.4.2" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-tomcat:3.4.2" level="project" />
