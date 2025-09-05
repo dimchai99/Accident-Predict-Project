@@ -21,6 +21,29 @@ def load_db_config(path="db_config.txt"):
 
 CFG = load_db_config()
 
+SCALER_JSON = "standard_scaler_params.json"  # ← 방금 만든 JSON
+
+def load_scaler_params(path=SCALER_JSON):
+    with open(path, "r", encoding="utf-8") as f:
+        p = json.load(f)
+    mean = np.array(p["mean"], dtype=float) if p["mean"] is not None else None
+    scale = np.array(p["scale"], dtype=float) if p["scale"] is not None else None
+    n_features_in = int(p["n_features_in"])
+    names = p.get("feature_names_in")
+    return {"mean": mean, "scale": scale, "n_features_in": n_features_in, "names": names}
+
+def standard_transform(X, params):
+    # StandardScaler: (X - mean) / scale
+    mean = params["mean"]
+    scale = params["scale"]
+    if mean is not None:
+        X = X - mean
+    if scale is not None:
+        # 0 division 방지
+        scale_safe = np.where(scale == 0, 1.0, scale)
+        X = X / scale_safe
+    return X
+
 # --- 2) 모델/스케일러 로드 ---
 SCALER_PATH = "standard_scaler_v1.joblib"
 MODEL_PATH = "autoencoder_v1.keras"
@@ -30,14 +53,20 @@ if not os.path.exists(SCALER_PATH):
 if not os.path.exists(MODEL_PATH):
     raise FileNotFoundError(f"{MODEL_PATH} not found")
 
-scaler = joblib.load(SCALER_PATH)
-ae = keras.models.load_model(MODEL_PATH, compile=False)
+# scaler = joblib.load(SCALER_PATH)
+# ae = keras.models.load_model(MODEL_PATH, compile=False)
+#
+# # --- 3) 더미 입력 생성(실전에서는 cycle_feature.features SELECT해서 X 생성) ---
+# # shape: (N, D) → 스케일러와 모델이 학습된 입력 차원에 맞춰야 함
+# N, D = 128, scaler.n_features_in_
+# X_raw = np.random.randn(N, D)
+# X = scaler.transform(X_raw)
 
-# --- 3) 더미 입력 생성(실전에서는 cycle_feature.features SELECT해서 X 생성) ---
-# shape: (N, D) → 스케일러와 모델이 학습된 입력 차원에 맞춰야 함
-N, D = 128, scaler.n_features_in_
+params = load_scaler_params(SCALER_JSON)
+ae = keras.models.load_model(MODEL_PATH, compile=False)
+N, D = 128, params["n_features_in"]
 X_raw = np.random.randn(N, D)
-X = scaler.transform(X_raw)
+X = standard_transform(X_raw, params)
 X_hat = ae.predict(X, verbose=0)
 mse = np.mean((X - X_hat) ** 2, axis=1)
 thr = float(np.mean(mse) + 3 * np.std(mse))

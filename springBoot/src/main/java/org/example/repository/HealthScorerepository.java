@@ -1,4 +1,4 @@
-package org.example.controller;
+package org.example.repository;
 
 import org.example.entity.HealthScore;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 import java.sql.Timestamp;
 import java.util.List;
 
-public interface HealthScoreRepository extends JpaRepository<HealthScore, Long> {
+public interface HealthScorerepository extends JpaRepository<HealthScore, Long> {
 
     @Query("""
     SELECT h FROM HealthScore h
