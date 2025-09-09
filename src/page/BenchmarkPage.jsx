@@ -1,6 +1,5 @@
-// src/page/BenchmarkPage.jsx
-import React from "react";
-import { Link } from "react-router-dom"; // 라우터 사용 시
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import "../Benchmark.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
@@ -17,7 +16,7 @@ import {
     ResponsiveContainer,
 } from "recharts";
 
-// 더미 데이터 (라인차트용)
+// 차트용 더미 데이터
 const lineData = [
     { year: 2015, furniture: 10000, technology: 18000, office: 5000 },
     { year: 2016, furniture: 20000, technology: 22000, office: 10000 },
@@ -26,7 +25,6 @@ const lineData = [
     { year: 2019, furniture: 28000, technology: 34000, office: 20000 },
 ];
 
-// 더미 데이터 (바차트용)
 const barData = [
     { name: "Jan", bar: 4000 },
     { name: "Feb", bar: 5000 },
@@ -36,21 +34,49 @@ const barData = [
     { name: "Jun", bar: 15000 },
 ];
 
-// 더미 데이터 (칼날 재고 확인용)
+// 칼날 재고 더미 데이터
 const tableData = [
-    { id: "Blade-001", position: "System Architect", startDate: "2011/04/25" },
-    { id: "Blade-002", position: "Accountant", startDate: "2011/07/25" },
-    { id: "Blade-003", position: "Junior Technical Author", startDate: "2009/01/12" },
-    { id: "Blade-004", position: "Senior Javascript Developer", startDate: "2012/03/29" },
-    { id: "Blade-005", position: "Accountant", startDate: "2008/11/28" },
+    { id: "Blade-001", position: "System Architect" },
+    { id: "Blade-002", position: "Accountant" },
+    { id: "Blade-003", position: "Junior Technical Author" },
+    { id: "Blade-004", position: "Senior Javascript Developer" },
+    { id: "Blade-005", position: "Accountant" },
+    { id: "Blade-006", position: "Software Engineer" },
+    { id: "Blade-007", position: "Integration Specialist" },
+    { id: "Blade-008", position: "Sales Assistant" },
+    { id: "Blade-009", position: "Manager" },
+    { id: "Blade-010", position: "Data Scientist" },
 ];
 
 export default function Benchmark() {
+    const [searchTerm, setSearchTerm] = useState("");
+    const [filteredData, setFilteredData] = useState(tableData);
+    const [currentPage, setCurrentPage] = useState(1);
+    const rowsPerPage = 5; // 🔹 한 페이지에 5개씩
+
+    // 검색 버튼 클릭 시
+    const handleSearch = () => {
+        if (searchTerm.trim() === "") {
+            setFilteredData(tableData); // 검색어 없으면 전체
+        } else {
+            const result = tableData.filter(
+                (row) => row.id.toLowerCase() === searchTerm.toLowerCase()
+            );
+            setFilteredData(result.length > 0 ? result : []); // 없으면 공백
+            setCurrentPage(1);
+        }
+    };
+
+    // 페이지네이션 계산
+    const indexOfLastRow = currentPage * rowsPerPage;
+    const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+    const currentRows = filteredData.slice(indexOfFirstRow, indexOfLastRow);
+    const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+
     return (
         <div className="benchmark-page">
             {/* 상단 네이비 바 */}
             <div className="top-bar">
-                {/* ✅ 홈 버튼 (메인화면 이동) */}
                 <Link to="/" className="home-button">
                     <i className="fas fa-home"></i>
                 </Link>
@@ -58,24 +84,25 @@ export default function Benchmark() {
             </div>
 
             <div className="layout">
-                {/* ✅ 왼쪽 사이드바 → 검색창 + 테이블 */}
+                {/* ✅ 왼쪽 사이드바 */}
                 <aside className="sidebar">
-                    {/* 🔎 검색창 */}
+                    {/* 검색창 */}
                     <div className="sidebar-search mb-3">
                         <div className="input-group">
                             <input
                                 type="text"
                                 className="form-control"
                                 placeholder="Search for..."
-                                aria-label="Search"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
                             />
-                            <button className="btn btn-primary" type="button">
+                            <button className="btn btn-primary" onClick={handleSearch}>
                                 <i className="fas fa-search"></i>
                             </button>
                         </div>
                     </div>
 
-                    {/* 📊 칼날 재고 확인 */}
+                    {/* 칼날 재고 확인 */}
                     <h5 className="mb-3">칼날 재고 확인</h5>
                     <div className="table-responsive">
                         <table className="table table-sm table-bordered">
@@ -86,24 +113,55 @@ export default function Benchmark() {
                             </tr>
                             </thead>
                             <tbody>
-                            {/* 🔹 첫 번째 행만 보여줌 */}
-                            <tr>
-                                <td>{tableData[0].id}</td>
-                                <td>{tableData[0].position}</td>
-                            </tr>
+                            {currentRows.length > 0 ? (
+                                currentRows.map((row, index) => (
+                                    <tr key={index}>
+                                        <td>{row.id}</td>
+                                        <td>{row.position}</td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="2" className="text-center">
+                                        No Data
+                                    </td>
+                                </tr>
+                            )}
                             </tbody>
                         </table>
                     </div>
+
+                    {/* 페이지네이션 */}
+                    {totalPages > 1 && (
+                        <nav>
+                            <ul className="pagination justify-content-center">
+                                {Array.from({ length: totalPages }, (_, i) => (
+                                    <li
+                                        key={i}
+                                        className={`page-item ${
+                                            currentPage === i + 1 ? "active" : ""
+                                        }`}
+                                    >
+                                        <button
+                                            className="page-link"
+                                            onClick={() => setCurrentPage(i + 1)}
+                                        >
+                                            {i + 1}
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                        </nav>
+                    )}
                 </aside>
 
-                {/* ✅ 오른쪽 콘텐츠 */}
+                {/* 오른쪽 콘텐츠 */}
                 <main className="content container-fluid px-4">
-                    {/* 페이지 제목 + 서브 박스 */}
                     <h1 className="page-title">Benchmark</h1>
                     <div className="page-subtitle">Dashboard</div>
 
                     <div className="row mt-4">
-                        {/* ✅ 라인차트 카드 */}
+                        {/* 라인차트 */}
                         <div className="col-xl-6">
                             <div className="card mb-4">
                                 <div className="card-header">
@@ -118,16 +176,16 @@ export default function Benchmark() {
                                             <YAxis />
                                             <Tooltip />
                                             <Legend />
-                                            <Line type="monotone" dataKey="furniture" stroke="#1e3a8a" strokeWidth={2} />
-                                            <Line type="monotone" dataKey="technology" stroke="#f59e0b" strokeWidth={2} />
-                                            <Line type="monotone" dataKey="office" stroke="#ef4444" strokeWidth={2} />
+                                            <Line type="monotone" dataKey="furniture" stroke="#1e3a8a" />
+                                            <Line type="monotone" dataKey="technology" stroke="#f59e0b" />
+                                            <Line type="monotone" dataKey="office" stroke="#ef4444" />
                                         </ComposedChart>
                                     </ResponsiveContainer>
                                 </div>
                             </div>
                         </div>
 
-                        {/* ✅ 바차트 카드 */}
+                        {/* 바차트 */}
                         <div className="col-xl-6">
                             <div className="card mb-4">
                                 <div className="card-header">
@@ -143,7 +201,7 @@ export default function Benchmark() {
                                             <Tooltip />
                                             <Legend />
                                             <Bar dataKey="bar" barSize={40} fill="#82ca9d" />
-                                            <Line type="monotone" dataKey="bar" stroke="#1e3a8a" strokeWidth={2} />
+                                            <Line type="monotone" dataKey="bar" stroke="#1e3a8a" />
                                         </ComposedChart>
                                     </ResponsiveContainer>
                                 </div>
