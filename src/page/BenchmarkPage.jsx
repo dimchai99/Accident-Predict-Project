@@ -80,7 +80,7 @@ export default function Benchmark() {
                 <Link to="/" className="home-button">
                     <i className="fas fa-home"></i>
                 </Link>
-                <h1 className="title ms-3">Accident Prediction Monitoring System</h1>
+                <h1 className="title ms-3">Accident Prediction Monitoring</h1>
             </div>
 
             <div className="layout">
