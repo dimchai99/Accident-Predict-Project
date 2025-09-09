@@ -1,5 +1,6 @@
 // src/page/BenchmarkPage.jsx
 import React from "react";
+import { Link } from "react-router-dom"; // 라우터 사용 시
 import "../Benchmark.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
@@ -35,35 +36,65 @@ const barData = [
     { name: "Jun", bar: 15000 },
 ];
 
+// 더미 데이터 (칼날 재고 확인용)
+const tableData = [
+    { id: "Blade-001", position: "System Architect", startDate: "2011/04/25" },
+    { id: "Blade-002", position: "Accountant", startDate: "2011/07/25" },
+    { id: "Blade-003", position: "Junior Technical Author", startDate: "2009/01/12" },
+    { id: "Blade-004", position: "Senior Javascript Developer", startDate: "2012/03/29" },
+    { id: "Blade-005", position: "Accountant", startDate: "2008/11/28" },
+];
+
 export default function Benchmark() {
     return (
         <div className="benchmark-page">
             {/* 상단 네이비 바 */}
             <div className="top-bar">
-                <h1 className="title">팀이름</h1>
+                {/* ✅ 홈 버튼 (메인화면 이동) */}
+                <Link to="/" className="home-button">
+                    <i className="fas fa-home"></i>
+                </Link>
+                <h1 className="title ms-3">팀이름</h1>
             </div>
 
             <div className="layout">
-                {/* 왼쪽 사이드바 */}
+                {/* ✅ 왼쪽 사이드바 → 테이블 */}
                 <aside className="sidebar">
-                    <ul>
-                        <li>대시보드</li>
-                        <li>팀 관리</li>
-                        <li>설정</li>
-                    </ul>
+                    <h5 className="mb-3">칼날 재고 확인</h5>
+                    <div className="table-responsive">
+                        <table className="table table-sm table-bordered">
+                            <thead className="table-light">
+                            <tr>
+                                <th>Id</th>
+                                <th>Position</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {/* 🔹 첫 번째 행만 보여줌 */}
+                            <tr>
+                                <td>{tableData[0].id}</td>
+                                <td>{tableData[0].position}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </aside>
 
-                {/* 오른쪽 콘텐츠 */}
+                {/* ✅ 오른쪽 콘텐츠 */}
                 <main className="content container-fluid px-4">
-                    <div className="row">
-                        {/* ✅ 라인차트 카드 (col-6) */}
+                    {/* 페이지 제목 + 서브 박스 */}
+                    <h1 className="page-title">Benchmark</h1>
+                    <div className="page-subtitle">Dashboard</div>
+
+                    <div className="row mt-4">
+                        {/* ✅ 라인차트 카드 */}
                         <div className="col-xl-6">
                             <div className="card mb-4">
                                 <div className="card-header">
                                     <i className="fas fa-chart-line me-1"></i>
                                     벤치마킹 라인차트
                                 </div>
-                                <div className="card-body" style={{ height: "300px" }}>
+                                <div className="card-body">
                                     <ResponsiveContainer width="100%" height="100%">
                                         <ComposedChart data={lineData}>
                                             <CartesianGrid stroke="#f5f5f5" />
@@ -71,38 +102,23 @@ export default function Benchmark() {
                                             <YAxis />
                                             <Tooltip />
                                             <Legend />
-                                            <Line
-                                                type="monotone"
-                                                dataKey="furniture"
-                                                stroke="#1e3a8a"
-                                                strokeWidth={2}
-                                            />
-                                            <Line
-                                                type="monotone"
-                                                dataKey="technology"
-                                                stroke="#f59e0b"
-                                                strokeWidth={2}
-                                            />
-                                            <Line
-                                                type="monotone"
-                                                dataKey="office"
-                                                stroke="#ef4444"
-                                                strokeWidth={2}
-                                            />
+                                            <Line type="monotone" dataKey="furniture" stroke="#1e3a8a" strokeWidth={2} />
+                                            <Line type="monotone" dataKey="technology" stroke="#f59e0b" strokeWidth={2} />
+                                            <Line type="monotone" dataKey="office" stroke="#ef4444" strokeWidth={2} />
                                         </ComposedChart>
                                     </ResponsiveContainer>
                                 </div>
                             </div>
                         </div>
 
-                        {/* ✅ 바차트 카드 (col-6) */}
+                        {/* ✅ 바차트 카드 */}
                         <div className="col-xl-6">
                             <div className="card mb-4">
                                 <div className="card-header">
                                     <i className="fas fa-chart-bar me-1"></i>
                                     바 차트
                                 </div>
-                                <div className="card-body" style={{ height: "300px" }}>
+                                <div className="card-body">
                                     <ResponsiveContainer width="100%" height="100%">
                                         <ComposedChart data={barData}>
                                             <CartesianGrid stroke="#f5f5f5" />
@@ -111,13 +127,7 @@ export default function Benchmark() {
                                             <Tooltip />
                                             <Legend />
                                             <Bar dataKey="bar" barSize={40} fill="#82ca9d" />
-                                            <Line
-                                                type="monotone"
-                                                dataKey="bar"
-                                                stroke="#1e3a8a"
-                                                strokeDasharray="5 5"
-                                                strokeWidth={2}
-                                            />
+                                            <Line type="monotone" dataKey="bar" stroke="#1e3a8a" strokeWidth={2} />
                                         </ComposedChart>
                                     </ResponsiveContainer>
                                 </div>

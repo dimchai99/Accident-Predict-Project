@@ -16,6 +16,25 @@ html, body {
     background: #f5f5f5;
 }
 
+/* 제목 스타일 */
+.page-title {
+    font-size: 1.75rem;       /* Dashboard 크기 */
+    font-weight: 700;         /* 두껍게 */
+    margin-top: 10px;         /* 상단 살짝만 띄움 */
+    margin-bottom: 0.5rem;    /* 아래 간격 */
+}
+
+/* 제목 밑에 얇은 회색 박스 */
+.page-subtitle {
+    background-color: #f8f9fc;   /* 연한 회색 */
+    border: 1px solid #e3e6f0;   /* 테두리 */
+    padding: 0.75rem 1rem;
+    border-radius: 0.35rem;
+    margin-bottom: 1rem;         /* 카드와 간격 */
+    font-size: 0.9rem;
+    color: #6c757d;              /* 텍스트 연한 회색 */
+}
+
 /* ✅ 상단 네이비 바 */
 .top-bar {
     width: 100%;
@@ -52,11 +71,33 @@ html, body {
     box-sizing: border-box;
 }
 
+/* ✅ 사이드바 검색창 */
+.sidebar-search {
+    margin-top: 20px;
+}
+
+.sidebar-search .input-group {
+    display: flex;
+    align-items: center;
+}
+
+.sidebar-search .form-control {
+    font-size: 0.9rem;
+    padding: 0.375rem 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.35rem 0 0 0.35rem;
+}
+
+.sidebar-search .btn {
+    border-radius: 0 0.35rem 0.35rem 0;
+}
+
 /* ✅ 콘텐츠 영역 */
 .content {
     flex: 1;
     padding: 20px;
     background: #f5f5f5;
+    margin-top: 0; /* 🔹 더 이상 강제로 아래로 내리지 않음 */
 }
 
 /* ============================= */
@@ -283,3 +324,14 @@ html, body {
     font-size: 0.75rem;
     border-radius: 0.375rem !important;
 }
+/* 홈 버튼 스타일 */
+.home-button {
+    color: white;
+    font-size: 18px;
+    text-decoration: none;
+}
+
+.home-button:hover {
+    color: #f1f1f1;
+}
+
