@@ -245,7 +245,7 @@ html, body {
 }
 
 .datatable-sorter::before {
-    bottom: 4px;
+    bottom: 1px;
     border-top: 4px solid #000;
 }
 
