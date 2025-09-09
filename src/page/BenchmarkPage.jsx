@@ -54,12 +54,28 @@ export default function Benchmark() {
                 <Link to="/" className="home-button">
                     <i className="fas fa-home"></i>
                 </Link>
-                <h1 className="title ms-3">팀이름</h1>
+                <h1 className="title ms-3">Accident Prediction Monitoring System</h1>
             </div>
 
             <div className="layout">
-                {/* ✅ 왼쪽 사이드바 → 테이블 */}
+                {/* ✅ 왼쪽 사이드바 → 검색창 + 테이블 */}
                 <aside className="sidebar">
+                    {/* 🔎 검색창 */}
+                    <div className="sidebar-search mb-3">
+                        <div className="input-group">
+                            <input
+                                type="text"
+                                className="form-control"
+                                placeholder="Search for..."
+                                aria-label="Search"
+                            />
+                            <button className="btn btn-primary" type="button">
+                                <i className="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* 📊 칼날 재고 확인 */}
                     <h5 className="mb-3">칼날 재고 확인</h5>
                     <div className="table-responsive">
                         <table className="table table-sm table-bordered">
