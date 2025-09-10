@@ -6,7 +6,6 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 
 import {
     ComposedChart,
-    Bar,
     Line,
     XAxis,
     YAxis,
@@ -16,7 +15,7 @@ import {
     ResponsiveContainer,
 } from "recharts";
 
-// 차트용 더미 데이터
+// 차트 데이터
 const lineData = [
     { year: 2015, furniture: 10000, technology: 18000, office: 5000 },
     { year: 2016, furniture: 20000, technology: 22000, office: 10000 },
@@ -25,16 +24,7 @@ const lineData = [
     { year: 2019, furniture: 28000, technology: 34000, office: 20000 },
 ];
 
-const barData = [
-    { name: "Jan", bar: 4000 },
-    { name: "Feb", bar: 5000 },
-    { name: "Mar", bar: 6000 },
-    { name: "Apr", bar: 8000 },
-    { name: "May", bar: 10000 },
-    { name: "Jun", bar: 15000 },
-];
-
-// 칼날 재고 더미 데이터
+// 테이블 데이터
 const tableData = [
     { id: "Blade-001", position: "System Architect" },
     { id: "Blade-002", position: "Accountant" },
@@ -52,22 +42,20 @@ export default function Benchmark() {
     const [searchTerm, setSearchTerm] = useState("");
     const [filteredData, setFilteredData] = useState(tableData);
     const [currentPage, setCurrentPage] = useState(1);
-    const rowsPerPage = 5; // 🔹 한 페이지에 5개씩
+    const rowsPerPage = 5;
 
-    // 검색 버튼 클릭 시
     const handleSearch = () => {
         if (searchTerm.trim() === "") {
-            setFilteredData(tableData); // 검색어 없으면 전체
+            setFilteredData(tableData);
         } else {
             const result = tableData.filter(
                 (row) => row.id.toLowerCase() === searchTerm.toLowerCase()
             );
-            setFilteredData(result.length > 0 ? result : []); // 없으면 공백
+            setFilteredData(result.length > 0 ? result : []);
             setCurrentPage(1);
         }
     };
 
-    // 페이지네이션 계산
     const indexOfLastRow = currentPage * rowsPerPage;
     const indexOfFirstRow = indexOfLastRow - rowsPerPage;
     const currentRows = filteredData.slice(indexOfFirstRow, indexOfLastRow);
@@ -75,8 +63,8 @@ export default function Benchmark() {
 
     return (
         <div className="benchmark-page">
-            {/* 상단 네이비 바 */}
-            <div className="top-bar">
+            {/* 네이비 상단바 */}
+            <div className="benchmark-top-bar">
                 <Link to="/" className="home-button">
                     <i className="fas fa-home"></i>
                 </Link>
@@ -84,9 +72,8 @@ export default function Benchmark() {
             </div>
 
             <div className="layout">
-                {/* ✅ 왼쪽 사이드바 */}
+                {/* 사이드바 */}
                 <aside className="sidebar">
-                    {/* 검색창 */}
                     <div className="sidebar-search mb-3">
                         <div className="input-group">
                             <input
@@ -102,7 +89,6 @@ export default function Benchmark() {
                         </div>
                     </div>
 
-                    {/* 칼날 재고 확인 */}
                     <h5 className="mb-3">칼날 재고 확인</h5>
                     <div className="table-responsive">
                         <table className="table table-sm table-bordered">
@@ -131,7 +117,6 @@ export default function Benchmark() {
                         </table>
                     </div>
 
-                    {/* 페이지네이션 */}
                     {totalPages > 1 && (
                         <nav>
                             <ul className="pagination justify-content-center">
@@ -155,55 +140,52 @@ export default function Benchmark() {
                     )}
                 </aside>
 
-                {/* 오른쪽 콘텐츠 */}
-                <main className="content container-fluid px-4">
+                {/* 콘텐츠 */}
+                <main className="content">
                     <h1 className="page-title">Benchmark</h1>
                     <div className="page-subtitle">Dashboard</div>
 
-                    <div className="row mt-4">
-                        {/* 라인차트 */}
-                        <div className="col-xl-6">
+                    {/* 그래프 */}
+                    <div className="card mb-4 chart-card">
+                        <div className="card-header">
+                            <i className="fas fa-chart-line me-1"></i>
+                            벤치마킹 라인차트
+                        </div>
+                        <div className="card-body">
+                            <ResponsiveContainer>
+                                <ComposedChart data={lineData}>
+                                    <CartesianGrid stroke="#f5f5f5" />
+                                    <XAxis dataKey="year" />
+                                    <YAxis />
+                                    <Tooltip />
+                                    <Legend />
+                                    <Line type="monotone" dataKey="furniture" stroke="#1e3a8a" strokeWidth={3} />
+                                    <Line type="monotone" dataKey="technology" stroke="#f59e0b" strokeWidth={3} />
+                                    <Line type="monotone" dataKey="office" stroke="#ef4444" strokeWidth={3} />
+                                </ComposedChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+
+                    {/* 점수 + 메시지 */}
+                    <div className="row">
+                        <div className="col-md-6">
                             <div className="card mb-4">
                                 <div className="card-header">
-                                    <i className="fas fa-chart-line me-1"></i>
-                                    벤치마킹 라인차트
+                                    <i className="fas fa-star me-1"></i> 점수
                                 </div>
-                                <div className="card-body">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <ComposedChart data={lineData}>
-                                            <CartesianGrid stroke="#f5f5f5" />
-                                            <XAxis dataKey="year" />
-                                            <YAxis />
-                                            <Tooltip />
-                                            <Legend />
-                                            <Line type="monotone" dataKey="furniture" stroke="#1e3a8a" />
-                                            <Line type="monotone" dataKey="technology" stroke="#f59e0b" />
-                                            <Line type="monotone" dataKey="office" stroke="#ef4444" />
-                                        </ComposedChart>
-                                    </ResponsiveContainer>
+                                <div className="card-body text-center p-4">
+                                    <p className="display-6 text-primary">85</p>
                                 </div>
                             </div>
                         </div>
-
-                        {/* 바차트 */}
-                        <div className="col-xl-6">
+                        <div className="col-md-6">
                             <div className="card mb-4">
                                 <div className="card-header">
-                                    <i className="fas fa-chart-bar me-1"></i>
-                                    바 차트
+                                    <i className="fas fa-comment me-1"></i> 메시지
                                 </div>
-                                <div className="card-body">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <ComposedChart data={barData}>
-                                            <CartesianGrid stroke="#f5f5f5" />
-                                            <XAxis dataKey="name" />
-                                            <YAxis />
-                                            <Tooltip />
-                                            <Legend />
-                                            <Bar dataKey="bar" barSize={40} fill="#82ca9d" />
-                                            <Line type="monotone" dataKey="bar" stroke="#1e3a8a" />
-                                        </ComposedChart>
-                                    </ResponsiveContainer>
+                                <div className="card-body text-center p-4">
+                                    <p className="lead">칼날 상태 양호</p>
                                 </div>
                             </div>
                         </div>
