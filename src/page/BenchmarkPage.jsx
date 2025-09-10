@@ -16,14 +16,25 @@ import {
     ResponsiveContainer,
 } from "recharts";
 
-// 차트 데이터
-const lineData = [
-    { year: 2015, furniture: 10000, technology: 18000, office: 5000 },
-    { year: 2016, furniture: 20000, technology: 22000, office: 10000 },
-    { year: 2017, furniture: 30000, technology: 28000, office: 15000 },
-    { year: 2018, furniture: 32000, technology: 30000, office: 17000 },
-    { year: 2019, furniture: 28000, technology: 34000, office: 20000 },
-];
+// 백엔드 주소 (.env에서 REACT_APP_PY_BASE로 덮어쓰기 가능)
+const BASE_URL = process.env.REACT_APP_PY_BASE || "http://127.0.0.1:8000";
+
+// Blade-001 -> 'a', Blade-002 -> 'b' ... (6개 주기 반복)
+const bladeToPrefix = (bladeId) => {
+    const m = String(bladeId).match(/\d+/);
+    const num = m ? parseInt(m[0], 10) : 0; // Blade-001 -> 1
+    const letters = ["a", "b", "c", "d", "e", "f"];
+    return num > 0 ? letters[(num - 1) % letters.length] : null;
+};
+
+// health → 메시지
+const healthMsg = (h) => {
+    if (h == null) return "데이터 없음";
+    if (h >= 85) return "칼날 상태 매우 양호";
+    if (h >= 60) return "양호";
+    if (h >= 35) return "점검 필요";
+    return "교체 권고";
+};
 
 // 테이블 데이터 (Id만 필요)
 const tableData = [
@@ -45,6 +56,68 @@ export default function Benchmark() {
     const [currentPage, setCurrentPage] = useState(1);
     const rowsPerPage = 5;
 
+    // 점수/상태
+    const [selectedId, setSelectedId] = useState("");
+    const [lastPrefix, setLastPrefix] = useState(null);
+    const [health, setHealth] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [err, setErr] = useState("");
+
+    // MSE 라인차트
+    const [mseRows, setMseRows] = useState([]);
+    const [mseLoading, setMseLoading] = useState(false);
+    const hasMse = mseRows && mseRows.length > 0;
+
+    // 백엔드 호출: /health/by_prefix/{prefix}
+    const fetchHealth = async (prefix) => {
+        setLoading(true);
+        setErr("");
+        setLastPrefix(prefix);
+        try {
+            const res = await fetch(`${BASE_URL}/health/by_prefix/${prefix}`);
+            if (!res.ok) {
+                const txt = await res.text();
+                throw new Error(`HTTP ${res.status} ${txt}`);
+            }
+            const data = await res.json(); // { prefix, result: { health, agg, p, p_shift } | null }
+            setHealth(data?.result?.health ?? null);
+        } catch (e) {
+            setErr(e.message || "fetch failed");
+            setHealth(null);
+        } finally {
+            setLoading(false);
+        }
+    };
+    // ---- 백엔드 호출: /mse/by_prefix/{prefix}
+    const fetchMse = async (prefix) => {
+        setMseLoading(true);
+        setErr("");
+        try {
+            const res = await fetch(`${BASE_URL}/mse/by_prefix/${prefix}`);
+            if (!res.ok) {
+                const txt = await res.text();
+                throw new Error(`HTTP ${res.status} ${txt}`);
+            }
+            const data = await res.json(); // { rows: [{time_stamp, mse}], ... }
+            const rows = (data?.rows || []).map((d) => {
+                const iso = String(d.time_stamp || "");
+                // X축 가독성: "MM-DD HH:mm" 포맷 느낌으로 잘라 보여주기
+                const label = iso.replace("T", " ").slice(5, 16);
+                return {
+                    time: label, // XAxis dataKey
+                    mse: Number(d.mse),
+                    _ts_raw: iso,
+                };
+            });
+            setMseRows(rows);
+        } catch (e) {
+            setErr(e.message || "fetch failed");
+            setMseRows([]);
+        } finally {
+            setMseLoading(false);
+        }
+    };
+
     const handleSearch = () => {
         if (searchTerm.trim() === "") {
             setFilteredData(tableData);
@@ -56,6 +129,23 @@ export default function Benchmark() {
             setCurrentPage(1);
         }
     };
+
+    // 테이블 클릭 → prefix 계산 → 백엔드 호출 → 점수 갱신
+    const handleRowClick = (id) => {
+        setSearchTerm(id);
+        setSelectedId(id);
+        const prefix = bladeToPrefix(id);
+        if (prefix) {
+            fetchHealth(prefix);
+            fetchMse(prefix);
+        }
+        else {
+            setHealth(null);
+            setLastPrefix(null);
+            setMseRows([]);
+        }
+    };
+
 
     const indexOfLastRow = currentPage * rowsPerPage;
     const indexOfFirstRow = indexOfLastRow - rowsPerPage;
@@ -88,6 +178,7 @@ export default function Benchmark() {
                                 placeholder="Search for..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
+                                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                             />
                             <button className="btn btn-primary" onClick={handleSearch}>
                                 <i className="fas fa-search"></i>
@@ -106,7 +197,12 @@ export default function Benchmark() {
                             <tbody>
                             {currentRows.length > 0 ? (
                                 currentRows.map((row, index) => (
-                                    <tr key={index}>
+                                    <tr
+                                        key={index}
+                                        onClick ={()=> handleRowClick(row.id)}
+                                        style={{ cursor: "pointer" }}
+                                        title="클릭해서 Health 지수 보기"
+                                    >
                                         <td>{row.id}</td>
                                     </tr>
                                 ))
@@ -151,10 +247,27 @@ export default function Benchmark() {
                     <div className="d-flex gap-3 mb-4">
                         <div className="card equal-card">
                             <div className="card-header custom-card-header">
-                                <i className="fas fa-star me-1"></i> 점수
+                                <i className="fas fa-star me-1"></i> Health 점수
                             </div>
                             <div className="card-body text-center">
-                                <p className="display-6 text-primary">85</p>
+                                {loading ? (
+                                    <p className="text-secondary m-0">불러오는 중…</p>
+                                ) : err ? (
+                                    <p className="text-danger m-0">{err}</p>
+                                ) : (
+                                    <>
+                                        <p className="display-6 text-primary m-0">
+                                            {health == null ? "—" : `${health.toFixed(2)}%`}
+                                        </p>
+                                        <small className="text-muted">
+                                            {selectedId
+                                                ? `ID: ${selectedId}${
+                                                    lastPrefix ? ` → prefix: ${lastPrefix}%` : ""
+                                                }`
+                                                : "테이블에서 ID를 클릭하세요"}
+                                        </small>
+                                    </>
+                                )}
                             </div>
                         </div>
                         <div className="card equal-card">
@@ -167,40 +280,38 @@ export default function Benchmark() {
                         </div>
                     </div>
 
-                    {/* 그래프 */}
+                    {/* 그래프 (디자인 유지: ComposedChart + Grid + Legend) */}
                     <div className="card mb-4 chart-card">
                         <div className="card-header custom-card-header">
                             <i className="fas fa-chart-line me-1"></i>
-                            벤치마킹 라인차트
+                            MSE 라인차트 (time_stamp vs mse)
                         </div>
                         <div className="card-body">
-                            <ResponsiveContainer width="100%" height={300}>
-                                <ComposedChart data={lineData}>
-                                    <CartesianGrid stroke="#f5f5f5" />
-                                    <XAxis dataKey="year" />
-                                    <YAxis />
-                                    <Tooltip />
-                                    <Legend />
-                                    <Line
-                                        type="monotone"
-                                        dataKey="furniture"
-                                        stroke="#1e3a8a"
-                                        strokeWidth={3}
-                                    />
-                                    <Line
-                                        type="monotone"
-                                        dataKey="technology"
-                                        stroke="#f59e0b"
-                                        strokeWidth={3}
-                                    />
-                                    <Line
-                                        type="monotone"
-                                        dataKey="office"
-                                        stroke="#ef4444"
-                                        strokeWidth={3}
-                                    />
-                                </ComposedChart>
-                            </ResponsiveContainer>
+                            {mseLoading ? (
+                                <div className="text-secondary">그래프 불러오는 중…</div>
+                            ) : hasMse ? (
+                                <ResponsiveContainer width="100%" height={300}>
+                                    <ComposedChart data={mseRows}>
+                                        <CartesianGrid stroke="#f5f5f5" />
+                                        <XAxis dataKey="time" minTickGap={28} />
+                                        <YAxis />
+                                        <Tooltip />
+                                        <Legend />
+                                        <Line
+                                            type="monotone"
+                                            dataKey="mse"
+                                            name="MSE"
+                                            stroke="#1e3a8a"
+                                            strokeWidth={3}
+                                            dot={false}
+                                        />
+                                    </ComposedChart>
+                                </ResponsiveContainer>
+                            ) : (
+                                <div className="text-muted">
+                                    데이터가 없습니다. 왼쪽에서 Blade ID를 클릭해 주세요.
+                                </div>
+                            )}
                         </div>
                     </div>
                 </main>
