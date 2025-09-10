@@ -39,7 +39,7 @@ const tableData = [
     { id: "Blade-010" },
 ];
 
-export default function Benchmark() {
+export default function ActiveMonitor() {
     const [searchTerm, setSearchTerm] = useState("");
     const [filteredData, setFilteredData] = useState(tableData);
     const [currentPage, setCurrentPage] = useState(1);
@@ -144,7 +144,7 @@ export default function Benchmark() {
 
                 {/* 콘텐츠 */}
                 <main className="content">
-                    <h1 className="page-title">Benchmark</h1>
+                    <h1 className="page-title">ActiveMonitor</h1>
                     <div className="page-subtitle">Dashboard</div>
 
                     {/* 점수 + 메시지 (정사각형 카드) */}
@@ -159,7 +159,7 @@ export default function Benchmark() {
                         </div>
                         <div className="card equal-card">
                             <div className="card-header custom-card-header">
-                                <i className="fas fa-comment me-1"></i> 메시지
+                                <i className="fas fa-comment me-1"></i> RUL
                             </div>
                             <div className="card-body text-center">
                                 <p className="lead">칼날 상태 양호</p>
