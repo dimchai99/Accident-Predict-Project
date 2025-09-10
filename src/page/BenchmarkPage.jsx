@@ -1,6 +1,7 @@
+// src/page/BenchmarkPage.jsx
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import "../Benchmark.css";
+import "../Benchmark.css"; // ✅ Benchmark 전용 CSS
 import "bootstrap/dist/css/bootstrap.min.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
@@ -63,13 +64,18 @@ export default function Benchmark() {
 
     return (
         <div className="benchmark-page">
-            {/* 네이비 상단바 */}
-            <div className="benchmark-top-bar">
-                <Link to="/" className="home-button">
-                    <i className="fas fa-home"></i>
-                </Link>
-                <h1 className="title ms-3">Accident Prediction Monitoring</h1>
-            </div>
+            {/* ✅ Bootstrap 네이비 Navbar */}
+            <nav
+                className="navbar navbar-dark"
+                style={{ backgroundColor: "#0f1b46", height: "50px" }}
+            >
+                <div className="container-fluid">
+                    <Link to="/" className="navbar-brand d-flex align-items-center">
+                        <i className="fas fa-home me-2"></i>
+                        Accident Prediction Monitoring
+                    </Link>
+                </div>
+            </nav>
 
             <div className="layout">
                 {/* 사이드바 */}
@@ -152,16 +158,31 @@ export default function Benchmark() {
                             벤치마킹 라인차트
                         </div>
                         <div className="card-body">
-                            <ResponsiveContainer>
+                            <ResponsiveContainer width="100%" height={300}>
                                 <ComposedChart data={lineData}>
                                     <CartesianGrid stroke="#f5f5f5" />
                                     <XAxis dataKey="year" />
                                     <YAxis />
                                     <Tooltip />
                                     <Legend />
-                                    <Line type="monotone" dataKey="furniture" stroke="#1e3a8a" strokeWidth={3} />
-                                    <Line type="monotone" dataKey="technology" stroke="#f59e0b" strokeWidth={3} />
-                                    <Line type="monotone" dataKey="office" stroke="#ef4444" strokeWidth={3} />
+                                    <Line
+                                        type="monotone"
+                                        dataKey="furniture"
+                                        stroke="#1e3a8a"
+                                        strokeWidth={3}
+                                    />
+                                    <Line
+                                        type="monotone"
+                                        dataKey="technology"
+                                        stroke="#f59e0b"
+                                        strokeWidth={3}
+                                    />
+                                    <Line
+                                        type="monotone"
+                                        dataKey="office"
+                                        stroke="#ef4444"
+                                        strokeWidth={3}
+                                    />
                                 </ComposedChart>
                             </ResponsiveContainer>
                         </div>
