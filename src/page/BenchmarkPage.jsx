@@ -1,7 +1,7 @@
 // src/page/BenchmarkPage.jsx
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import "../Benchmark.css"; // ✅ Benchmark 전용 CSS
+import "../Benchmark.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
@@ -25,18 +25,18 @@ const lineData = [
     { year: 2019, furniture: 28000, technology: 34000, office: 20000 },
 ];
 
-// 테이블 데이터
+// 테이블 데이터 (Id만 필요)
 const tableData = [
-    { id: "Blade-001", position: "System Architect" },
-    { id: "Blade-002", position: "Accountant" },
-    { id: "Blade-003", position: "Junior Technical Author" },
-    { id: "Blade-004", position: "Senior Javascript Developer" },
-    { id: "Blade-005", position: "Accountant" },
-    { id: "Blade-006", position: "Software Engineer" },
-    { id: "Blade-007", position: "Integration Specialist" },
-    { id: "Blade-008", position: "Sales Assistant" },
-    { id: "Blade-009", position: "Manager" },
-    { id: "Blade-010", position: "Data Scientist" },
+    { id: "Blade-001" },
+    { id: "Blade-002" },
+    { id: "Blade-003" },
+    { id: "Blade-004" },
+    { id: "Blade-005" },
+    { id: "Blade-006" },
+    { id: "Blade-007" },
+    { id: "Blade-008" },
+    { id: "Blade-009" },
+    { id: "Blade-010" },
 ];
 
 export default function Benchmark() {
@@ -101,7 +101,6 @@ export default function Benchmark() {
                             <thead className="table-light">
                             <tr>
                                 <th>Id</th>
-                                <th>Position</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -109,14 +108,11 @@ export default function Benchmark() {
                                 currentRows.map((row, index) => (
                                     <tr key={index}>
                                         <td>{row.id}</td>
-                                        <td>{row.position}</td>
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="2" className="text-center">
-                                        No Data
-                                    </td>
+                                    <td className="text-center">No Data</td>
                                 </tr>
                             )}
                             </tbody>
@@ -151,6 +147,30 @@ export default function Benchmark() {
                     <h1 className="page-title">Benchmark</h1>
                     <div className="page-subtitle">Dashboard</div>
 
+                    {/* 점수 + 메시지 */}
+                    <div className="row mb-4">
+                        <div className="col-md-4">
+                            <div className="card">
+                                <div className="card-header">
+                                    <i className="fas fa-star me-1"></i> 점수
+                                </div>
+                                <div className="card-body text-center p-3">
+                                    <p className="display-6 text-primary">85</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-md-4">
+                            <div className="card">
+                                <div className="card-header">
+                                    <i className="fas fa-comment me-1"></i> 메시지
+                                </div>
+                                <div className="card-body text-center p-3">
+                                    <p className="lead">칼날 상태 양호</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* 그래프 */}
                     <div className="card mb-4 chart-card">
                         <div className="card-header">
@@ -165,50 +185,11 @@ export default function Benchmark() {
                                     <YAxis />
                                     <Tooltip />
                                     <Legend />
-                                    <Line
-                                        type="monotone"
-                                        dataKey="furniture"
-                                        stroke="#1e3a8a"
-                                        strokeWidth={3}
-                                    />
-                                    <Line
-                                        type="monotone"
-                                        dataKey="technology"
-                                        stroke="#f59e0b"
-                                        strokeWidth={3}
-                                    />
-                                    <Line
-                                        type="monotone"
-                                        dataKey="office"
-                                        stroke="#ef4444"
-                                        strokeWidth={3}
-                                    />
+                                    <Line type="monotone" dataKey="furniture" stroke="#1e3a8a" strokeWidth={3} />
+                                    <Line type="monotone" dataKey="technology" stroke="#f59e0b" strokeWidth={3} />
+                                    <Line type="monotone" dataKey="office" stroke="#ef4444" strokeWidth={3} />
                                 </ComposedChart>
                             </ResponsiveContainer>
-                        </div>
-                    </div>
-
-                    {/* 점수 + 메시지 */}
-                    <div className="row">
-                        <div className="col-md-6">
-                            <div className="card mb-4">
-                                <div className="card-header">
-                                    <i className="fas fa-star me-1"></i> 점수
-                                </div>
-                                <div className="card-body text-center p-4">
-                                    <p className="display-6 text-primary">85</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-md-6">
-                            <div className="card mb-4">
-                                <div className="card-header">
-                                    <i className="fas fa-comment me-1"></i> 메시지
-                                </div>
-                                <div className="card-body text-center p-4">
-                                    <p className="lead">칼날 상태 양호</p>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </main>
