@@ -147,33 +147,29 @@ export default function Benchmark() {
                     <h1 className="page-title">Benchmark</h1>
                     <div className="page-subtitle">Dashboard</div>
 
-                    {/* 점수 + 메시지 */}
-                    <div className="row mb-4">
-                        <div className="col-md-4">
-                            <div className="card">
-                                <div className="card-header">
-                                    <i className="fas fa-star me-1"></i> 점수
-                                </div>
-                                <div className="card-body text-center p-3">
-                                    <p className="display-6 text-primary">85</p>
-                                </div>
+                    {/* 점수 + 메시지 (정사각형 카드) */}
+                    <div className="d-flex gap-3 mb-4">
+                        <div className="card equal-card">
+                            <div className="card-header custom-card-header">
+                                <i className="fas fa-star me-1"></i> 점수
+                            </div>
+                            <div className="card-body text-center">
+                                <p className="display-6 text-primary">85</p>
                             </div>
                         </div>
-                        <div className="col-md-4">
-                            <div className="card">
-                                <div className="card-header">
-                                    <i className="fas fa-comment me-1"></i> 메시지
-                                </div>
-                                <div className="card-body text-center p-3">
-                                    <p className="lead">칼날 상태 양호</p>
-                                </div>
+                        <div className="card equal-card">
+                            <div className="card-header custom-card-header">
+                                <i className="fas fa-comment me-1"></i> 메시지
+                            </div>
+                            <div className="card-body text-center">
+                                <p className="lead">칼날 상태 양호</p>
                             </div>
                         </div>
                     </div>
 
                     {/* 그래프 */}
                     <div className="card mb-4 chart-card">
-                        <div className="card-header">
+                        <div className="card-header custom-card-header">
                             <i className="fas fa-chart-line me-1"></i>
                             벤치마킹 라인차트
                         </div>
@@ -185,9 +181,24 @@ export default function Benchmark() {
                                     <YAxis />
                                     <Tooltip />
                                     <Legend />
-                                    <Line type="monotone" dataKey="furniture" stroke="#1e3a8a" strokeWidth={3} />
-                                    <Line type="monotone" dataKey="technology" stroke="#f59e0b" strokeWidth={3} />
-                                    <Line type="monotone" dataKey="office" stroke="#ef4444" strokeWidth={3} />
+                                    <Line
+                                        type="monotone"
+                                        dataKey="furniture"
+                                        stroke="#1e3a8a"
+                                        strokeWidth={3}
+                                    />
+                                    <Line
+                                        type="monotone"
+                                        dataKey="technology"
+                                        stroke="#f59e0b"
+                                        strokeWidth={3}
+                                    />
+                                    <Line
+                                        type="monotone"
+                                        dataKey="office"
+                                        stroke="#ef4444"
+                                        strokeWidth={3}
+                                    />
                                 </ComposedChart>
                             </ResponsiveContainer>
                         </div>

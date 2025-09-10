@@ -25,7 +25,7 @@ html, body {
     display: flex;
     align-items: center;
     padding: 0 20px;
-    box-sizing: border-box;   /* ✅ 패딩 포함 계산 */
+    box-sizing: border-box;
 }
 
 /* 네이비바 텍스트 */
@@ -87,7 +87,9 @@ html, body {
     margin-bottom: 1.5rem;
 }
 
-.card-header {
+/* 카드 헤더 (✅ 선 잘리지 않도록 수정) */
+.card-header,
+.custom-card-header {
     padding: 0.75rem 1.25rem;
     margin-bottom: 0;
     background-color: #f8f9fc;
@@ -97,17 +99,20 @@ html, body {
     display: flex;
     align-items: center;
     gap: 6px;
+
+    width: 100%;            /* 전체 너비 차지 */
+    box-sizing: border-box; /* padding 포함 */
 }
 
 /* 차트 카드 */
 .chart-card .card-body {
-    height: 350px;            /* ✅ 카드 높이 고정 */
+    height: 350px;
     padding: 0.5rem;
 }
 
 .chart-card .recharts-responsive-container {
-    width: 100% !important;   /* ✅ 카드 너비 맞춤 */
-    height: 100% !important;  /* ✅ 카드 높이 맞춤 */
+    width: 100% !important;
+    height: 100% !important;
 }
 
 /* 홈 버튼 */
@@ -119,4 +124,14 @@ html, body {
 
 .home-button:hover {
     color: #f1f1f1;
+}
+
+/* ✅ 점수 & 메시지 카드 동일 크기 정사각형 (왼쪽 정렬) */
+.equal-card {
+    width: 220px;    /* 너비 */
+    height: 220px;   /* 높이 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center; /* 안쪽 텍스트 중앙 */
 }
