@@ -14,7 +14,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 # main.py
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import health, mse
+from app.routers import health, mse, blades, runrisk
 
 from app.db import DB_CONFIG  # load_dotenv 포함되어 있음
 import pymysql
@@ -49,6 +49,8 @@ app.add_middleware(
 
 app.include_router(health.router)
 app.include_router(mse.router)
+app.include_router(blades.router)
+app.include_router(runrisk.router)
 
 @app.get("/mse/by_prefix/{prefix}")
 def get_mse_by_prefix(prefix: str, limit: Optional[int] = None):

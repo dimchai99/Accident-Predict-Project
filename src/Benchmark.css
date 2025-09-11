@@ -135,3 +135,23 @@ html, body {
     justify-content: center;
     align-items: center; /* 안쪽 텍스트 중앙 */
 }
+
+
+/* 헤더 배너 영역 */
+.header-image {
+    position: relative;
+    width: 100%;
+    height: 42vh;          /* 크게: 35~50vh로 조절 */
+    min-height: 280px;     /* 너무 작지 않게 하한선 */
+    overflow: hidden;
+    margin-bottom: 16px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+/* 이미지가 영역을 꽉 채우도록 */
+.header-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;     /* 비율 유지하며 채우기 */
+    display: block;
+}

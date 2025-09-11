@@ -11,6 +11,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="com.example.springBoot" target="21" />
       <module name="com.example.springBoot.main" target="21" />
       <module name="springBoot" target="21" />
       <module name="springBoot.main" target="21" />
@@ -19,6 +20,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="com.example.springBoot" options="-parameters" />
       <module name="com.example.springBoot.main" options="-parameters" />
       <module name="springBoot" options="-parameters" />
       <module name="springBoot.main" options="-parameters" />

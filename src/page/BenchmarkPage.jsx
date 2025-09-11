@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import "../Benchmark.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
+import sortIcon from "../image/sort.png";
 
 import {
     ComposedChart,
@@ -30,10 +31,8 @@ const bladeToPrefix = (bladeId) => {
 // health → 메시지
 const healthMsg = (h) => {
     if (h == null) return "데이터 없음";
-    if (h >= 85) return "칼날 상태 매우 양호";
-    if (h >= 60) return "양호";
-    if (h >= 35) return "점검 필요";
-    return "교체 권고";
+    if (h >= 70) return "칼날 상태 양호";
+    return "불량";
 };
 
 // 테이블 데이터 (Id만 필요)
@@ -43,18 +42,12 @@ const tableData = [
     { id: "Blade-003" },
     { id: "Blade-004" },
     { id: "Blade-005" },
-    { id: "Blade-006" },
-    { id: "Blade-007" },
-    { id: "Blade-008" },
-    { id: "Blade-009" },
-    { id: "Blade-010" },
+
 ];
 
 export default function Benchmark() {
     const [searchTerm, setSearchTerm] = useState("");
     const [filteredData, setFilteredData] = useState(tableData);
-    const [currentPage, setCurrentPage] = useState(1);
-    const rowsPerPage = 5;
 
     // 점수/상태
     const [selectedId, setSelectedId] = useState("");
@@ -79,7 +72,7 @@ export default function Benchmark() {
                 const txt = await res.text();
                 throw new Error(`HTTP ${res.status} ${txt}`);
             }
-            const data = await res.json(); // { prefix, result: { health, agg, p, p_shift } | null }
+            const data = await res.json();
             setHealth(data?.result?.health ?? null);
         } catch (e) {
             setErr(e.message || "fetch failed");
@@ -88,7 +81,8 @@ export default function Benchmark() {
             setLoading(false);
         }
     };
-    // ---- 백엔드 호출: /mse/by_prefix/{prefix}
+
+    // 백엔드 호출: /mse/by_prefix/{prefix}
     const fetchMse = async (prefix) => {
         setMseLoading(true);
         setErr("");
@@ -98,13 +92,12 @@ export default function Benchmark() {
                 const txt = await res.text();
                 throw new Error(`HTTP ${res.status} ${txt}`);
             }
-            const data = await res.json(); // { rows: [{time_stamp, mse}], ... }
+            const data = await res.json();
             const rows = (data?.rows || []).map((d) => {
                 const iso = String(d.time_stamp || "");
-                // X축 가독성: "MM-DD HH:mm" 포맷 느낌으로 잘라 보여주기
                 const label = iso.replace("T", " ").slice(5, 16);
                 return {
-                    time: label, // XAxis dataKey
+                    time: label,
                     mse: Number(d.mse),
                     _ts_raw: iso,
                 };
@@ -118,19 +111,19 @@ export default function Benchmark() {
         }
     };
 
+// 검색 핸들러: 검색 시 결과만 갱신 (페이지 리셋 같은 건 필요 없음)
     const handleSearch = () => {
-        if (searchTerm.trim() === "") {
+        const term = searchTerm.trim().toLowerCase();
+        if (!term) {
             setFilteredData(tableData);
-        } else {
-            const result = tableData.filter(
-                (row) => row.id.toLowerCase() === searchTerm.toLowerCase()
-            );
-            setFilteredData(result.length > 0 ? result : []);
-            setCurrentPage(1);
+            return;
         }
+        const result = tableData.filter((row) =>
+            row.id.toLowerCase().includes(term)   // 부분 일치
+        );
+        setFilteredData(result);
     };
 
-    // 테이블 클릭 → prefix 계산 → 백엔드 호출 → 점수 갱신
     const handleRowClick = (id) => {
         setSearchTerm(id);
         setSelectedId(id);
@@ -138,19 +131,18 @@ export default function Benchmark() {
         if (prefix) {
             fetchHealth(prefix);
             fetchMse(prefix);
-        }
-        else {
+        } else {
             setHealth(null);
             setLastPrefix(null);
             setMseRows([]);
         }
     };
 
-
-    const indexOfLastRow = currentPage * rowsPerPage;
-    const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-    const currentRows = filteredData.slice(indexOfFirstRow, indexOfLastRow);
-    const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+    const healthClass = (h) => {
+        if (h == null) return "text-muted";
+        if (h >= 70) return "text-primary";   // 매우 양호 → 초록
+        return "text-danger";                 // 교체 권고 → 빨강
+    };
 
     return (
         <div className="benchmark-page">
@@ -186,64 +178,38 @@ export default function Benchmark() {
                         </div>
                     </div>
 
-                    <h5 className="mb-3">칼날 재고 확인</h5>
                     <div className="table-responsive">
-                        <table className="table table-sm table-bordered">
-                            <thead className="table-light">
-                            <tr>
-                                <th>Id</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {currentRows.length > 0 ? (
-                                currentRows.map((row, index) => (
-                                    <tr
+                        <div className="list-group">
+                            {filteredData.length > 0 ? (
+                                filteredData.map((row, index) => (
+                                    <button
                                         key={index}
-                                        onClick ={()=> handleRowClick(row.id)}
-                                        style={{ cursor: "pointer" }}
+                                        onClick={() => handleRowClick(row.id)}
+                                        className={`list-group-item list-group-item-action ${
+                                            selectedId === row.id ? "active" : ""
+                                        }`}
                                         title="클릭해서 Health 지수 보기"
                                     >
-                                        <td>{row.id}</td>
-                                    </tr>
+                                        {row.id}
+                                    </button>
                                 ))
                             ) : (
-                                <tr>
-                                    <td className="text-center">No Data</td>
-                                </tr>
+                                <div className="list-group-item text-center text-muted">No Data</div>
                             )}
-                            </tbody>
-                        </table>
+                        </div>
                     </div>
 
-                    {totalPages > 1 && (
-                        <nav>
-                            <ul className="pagination justify-content-center">
-                                {Array.from({ length: totalPages }, (_, i) => (
-                                    <li
-                                        key={i}
-                                        className={`page-item ${
-                                            currentPage === i + 1 ? "active" : ""
-                                        }`}
-                                    >
-                                        <button
-                                            className="page-link"
-                                            onClick={() => setCurrentPage(i + 1)}
-                                        >
-                                            {i + 1}
-                                        </button>
-                                    </li>
-                                ))}
-                            </ul>
-                        </nav>
-                    )}
                 </aside>
 
                 {/* 콘텐츠 */}
                 <main className="content">
                     <h1 className="page-title">Benchmark</h1>
-                    <div className="page-subtitle">Dashboard</div>
+                    {/* 수정된 부제목 */}
+                    <div className="page-subtitle">
+                        Dashboard
+                    </div>
 
-                    {/* 점수 + 메시지 (정사각형 카드) */}
+                    {/* 점수 + 메시지 */}
                     <div className="d-flex gap-3 mb-4">
                         <div className="card equal-card">
                             <div className="card-header custom-card-header">
@@ -261,9 +227,7 @@ export default function Benchmark() {
                                         </p>
                                         <small className="text-muted">
                                             {selectedId
-                                                ? `ID: ${selectedId}${
-                                                    lastPrefix ? ` → prefix: ${lastPrefix}%` : ""
-                                                }`
+                                                ? `ID: ${selectedId}`
                                                 : "테이블에서 ID를 클릭하세요"}
                                         </small>
                                     </>
@@ -274,13 +238,21 @@ export default function Benchmark() {
                             <div className="card-header custom-card-header">
                                 <i className="fas fa-comment me-1"></i> 메시지
                             </div>
-                            <div className="card-body text-center">
-                                <p className="lead">칼날 상태 양호</p>
+                            <div className="card-body text-center" style={{display:'flex', justifyContent:'centrt', alignItems:'center'}}>
+                                {loading ? (
+                                    <p className="text-secondary m-0">불러오는 중…</p>
+                                ) : err ? (
+                                    <h2 className="text-danger m-0">{err}</h2>
+                                ) : (
+                                    <h2 className={`lead m-0 ${healthClass(health)}`}>
+                                        {healthMsg(health)}
+                                    </h2>
+                                )}
                             </div>
                         </div>
                     </div>
 
-                    {/* 그래프 (디자인 유지: ComposedChart + Grid + Legend) */}
+                    {/* 그래프 */}
                     <div className="card mb-4 chart-card">
                         <div className="card-header custom-card-header">
                             <i className="fas fa-chart-line me-1"></i>
