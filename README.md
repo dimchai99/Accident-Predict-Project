@@ -1,70 +1,83 @@
-# Getting Started with Create React App
+사고예측 모니터링 시스템 프로젝트 요약
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+1. 프로젝트 개요
+현대 제조 공정에서는 칼날(blade)과 같은 소모성 부품의 마모가 생산 품질과 안전에
+직접적으로 영향을 미칩니다.
+기존에는 일정 주기마다 정기적으로 교체하는 방식이었으나, 실제 상태와 무관하게 불필요한
+교체가 이루어지거나, 반대로 교체가 늦어져 사고 위험이 발생하는 문제가 있습니다.
+따라서 센서 데이터를 기반으로 블레이드의 마모 상태를 자동 진단하고, 교체 시점을 예측하는
+시스템 이라는 주제를 도출했습니다.
+이 프로젝트는 크게 데이터 분석(모델링) → 백엔드(DB 및 서버 구축) → 프론트엔드(대시보드
+시각화)의 세 단계로 진행되었습니다.
 
-## Available Scripts
+2. 데이터 분석
+(1) 데이터 특성
+● 데이터는 칼날 가공 장비에서 측정된 토크, 속도, 위치, 랙 오차 등 총 9개의 센서
+항목으로 구성된 시계열 데이터입니다.
+● 1년간 수집된 연속 데이터와, 정상/마모 블레이드를 비교할 수 있는 벤치마크 데이터가
+함께 제공되었습니다.
+(2) 모델링 접근
+● Autoencoder (비지도 학습)
+○ 정상 데이터를 학습하여 입력을 재구성(reconstruction)하는 방식.
+○ 재구성 오차(Reconstruction Error)가 크면 이상(anomaly)으로 판단.
+○ 즉, 정상 패턴에서 벗어난 마모 신호를 탐지하는 데 적합.
+● LSTM (지도 학습)
+○ 시계열 특성을 반영하여 미래의 값을 예측.
+○ 과거 패턴을 바탕으로 블레이드 성능 저하 추세를 파악하고, 잔여수명(RUL:
+Remaining Useful Life)을 추정.
+(3) 지표 설계
+● Health Score:
+○ MSE 값 분포(ECDF, 경험적 누적분포)를 바탕으로, 100~0 사이의 지표를 산출.
+○ 값이 클수록 정상, 작을수록 마모 진행 상태.
+● RUL 예측:
+○ 최근 구간의 Health Score 변화를 선형회귀로 추세선화.
+○ Health Score가 0에 도달할 시점을 잔여수명으로 계산.
+(4) 분석 결과
+● Torque는 is_anomarly 와 음의 상관, Speed는 양의 상관을 보였으며, 이는 실제 마모
+상황과 일치.
+● Autoencoder는 시계열이고, 정답 데이터가 없지만 교체 직후 데이터가 상대적으로 new
+blade라는 점을 이용하여 앞부분을 기준으로 삼아 분석. 실제로 예상과 데이터분석이
+일치하는 모습을 보여 프로젝트를 진행했습니다.
 
-In the project directory, you can run:
+3. 백엔드 및 데이터베이스
+(1) 데이터베이스 구조 (MySQL)
+● run_measurement: 원시 센서 데이터 저장 (토크, 위치, 속도, 오차 등).
+● run_risk: 각 블레이드의 Health Score, RUL 결과 저장.
+● benchmark_mse: 벤치마크 데이터와 비교한 평균제곱오차(MSE) 기록.
+● blade_benchmark: 정상/마모 블레이드의 기준 데이터를 저장.
+이렇게 테이블을 분리함으로써, 원본 데이터와 예측 결과를 구분 관리하고, 추후 재검증과
+확장성을 확보했습니다.
+(2) 서버 구축
+● FastAPI (Python 기반)을 사용하여 RESTful API 서버를 구현했습니다.
+● 모델이 산출한 Health Score와 RUL을 DB에 저장하고, API를 통해 프론트엔드로 전달.
+● 실시간 데이터 파이프라인: 센서 입력 → DB 저장 → 모델 분석 → Health/RUL 반환.
 
-### `npm start`
+4. 프론트엔드 및 시각화
+(1) 기술 스택
+● React로 대시보드를 구현.
+● Redux Toolkit을 활용하여 상태 관리 및 데이터 흐름 제어.
+(2) 주요 기능
+● 칼날별 Health Score 및 RUL(잔여수명) 표시.
+● 예상 교체일 계산 및 시각화.
+● MSE 오차값 기반의 마모율 표시.
+● 재고 칼날 상태(정상/마모 여부) 및 교체 필요 현황을 직관적으로 확인.
+(3) 장점
+● 관리자 친화적인 UI: 복잡한 데이터 대신 직관적 지표 제공.
+● 사고 예방 및 불필요한 교체 방지 → 유지보수 비용 절감 기대.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+5. 성과와 한계
+(1) 기대 효과
+● 조기 이상 탐지 → 사고 예방 가능.
+● 교체 최적화 → 비용 절감 효과 (약 15~20% 예상).
+● 실시간 모니터링 시스템을 통한 안전성 강화.
+(2) 한계점
+● RUL 예측 정확도 향상이 필요 (데이터 부족, 교체 레이블 불명확).
+● 다양한 부하 조건(생산량, 소재 특성 등) 반영 미흡.
+● 실제 공장 적용을 위한 실시간 센서 인프라 구축 필요.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+6. 결론
+본 프로젝트는 데이터 분석 → DB/백엔드 → 프론트엔드 시각화의 흐름을 따라, 시스템 형태로
+구현했습니다.
+이를 통해 산업 현장에서의 예지보전(Predictive Maintenance) 가능성을 확인했으며, 향후 더
+많은 데이터를 축적하고 모델을 고도화한다면, 블레이드뿐 아니라 다양한 소모성 부품에도
+적용이 가능할 것으로 기대됩니다
