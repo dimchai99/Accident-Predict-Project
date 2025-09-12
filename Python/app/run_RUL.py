@@ -1,4 +1,5 @@
 # app/benchmark_health.py
+'''
 import sys, traceback
 from pathlib import Path
 from typing import List, Tuple, Optional, Dict
@@ -232,7 +233,7 @@ def build_ecdf_from_daily(daily_mse_df: pd.DataFrame, baseline_days: int = 20):
     base = pd.Series(base).replace([np.inf, -np.inf], np.nan).dropna().to_numpy()
     if len(base) == 0:
         raise ValueError("No valid values in baseline to build ECDF.")
-    q_lo, q_hi = np.quantile(base, [0.1, 0.9])
+    q_lo, q_hi = np.quantile(base, [0.01, 0.99])
     base = np.clip(base, q_lo, q_hi)
 
     return make_ecdf_midrank(base)
@@ -296,7 +297,8 @@ def health_from_run(run_df: pd.DataFrame, ecdf, mse_col: str = "recon_error_mse"
 
     # health = 100*(1-ECDF(mse))
     h = 100.0 * (1.0 - ecdf(run_mse))
-    h = float(np.clip(h, 0.0, 100.0))
+    h = np.sqrt(h/100) * 100
+    h = np.clip(h, 5, 95)
     return {"run_mse": run_mse, "health_now": h}
 
 # ------------------------------
@@ -352,7 +354,7 @@ def infer_rul_for_single_run(
         df_for_slope["date"] = pd.to_datetime(df_for_slope["date"], errors="coerce")
         df_for_slope = df_for_slope.dropna(subset=["date", "recon_error_mse"])
         df_for_slope["health"] = 100.0 * (1.0 - df_for_slope["recon_error_mse"].apply(lambda v: ecdf(float(v))))
-        df_for_slope["health"] = df_for_slope["health"].clip(7.0, 93.0)
+        df_for_slope["health"] = df_for_slope["health"].clip(0.0, 100.0)
 
     a = fit_daily_health_slope(df_for_slope, window_days=window_days, ema_alpha=0.2)
 
@@ -387,11 +389,21 @@ def compute_rul_from_sample(mode: int, blade_id: int) -> dict:
     run_df = results_df.tail(2048).copy()
 
     # 3) 일별 평균 MSE(daily_mse_df) 구성
-    daily = pd.DataFrame({
+    if mode == 1:
+        daily = pd.DataFrame({
         "date": ["2025-11-07","2025-11-22","2025-11-28","2025-12-10","2025-12-25"],
         "recon_error_mse": [0.000421, 0.000370, 0.000433, 0.000531, 0.007167],
-        "health": [35.0, 40.0, 35.0, 25.0, 5.0]
-    })
+        "health": [45.0, 65.0, 45.0, 30.0, 10.0]})
+    elif mode == 2:
+        daily = pd.DataFrame({
+        "date": ["2025-11-07","2025-11-22","2025-11-28","2025-12-10","2025-12-25"],
+        "recon_error_mse": [0.000330, 0.001003, 0.000867, 0.000605, 0.001851],
+        "health": [80.0, 14.0, 67.11, 50, 12]})
+    elif mode == 3:
+        daily = pd.DataFrame({
+        "date": ["2025-11-07","2025-11-22","2025-11-28","2025-12-10","2025-12-25"],
+        "recon_error_mse": [0.000421, 0.000370, 0.000433, 0.000531, 0.007167],
+        "health": [35.0, 40.0, 35.0, 25.0, 5.0]})
 
     # 4) RUL 추정
     res = infer_rul_for_single_run(
@@ -423,6 +435,8 @@ daily_mse_df = pd.DataFrame({
 })
 # (가정) run_df: 2048행, 8초 구간의 샘플별 'recon_error_mse' 열 보유
 # run_date: 이 run이 찍힌 날 (예: "2025-01-04 12:00:00" 또는 "2025-01-04")
+
+'''
 
 '''
 result = infer_rul_for_single_run(

@@ -1,138 +1,146 @@
 /* 브라우저 기본 여백 제거 */
 html, body {
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden; /* 가로 스크롤 방지 */
-  font-family: Arial, Helvetica, sans-serif;
-  background-color: #f5f5f5;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden; /* 가로 스크롤 방지 */
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #e6eaff; /* ✅ 버튼 섹션과 맞춤 → 혹시 띠 생겨도 안 보임 */
 }
 
 /* 전체 컨테이너 */
 .page-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
 /* 상단 이미지 영역 */
 .header-image {
-  position: relative;
-  width: 100vw;
-  height: 320px;         /* 기본 높이 */
-  overflow: hidden;
+    position: relative;
+    width: 100vw;
+    height: 320px;         /* 기본 높이 */
+    overflow: hidden;
+    line-height: 0;        /* ✅ 이미지 하단 공백 제거 */
+    font-size: 0;          /* ✅ inline 공백 제거 */
 }
 
 .header-image img {
-  position: absolute;
-  inset: 0;              /* top, right, bottom, left = 0 */
-  width: 100%;
-  height: 100%;
-  object-fit: cover;     /* 비율 유지하면서 꽉 채우기 */
+    position: absolute;
+    inset: 0;              /* top, right, bottom, left = 0 */
+    width: 100%;
+    height: 100%;
+    object-fit: cover;     /* 비율 유지하면서 꽉 채우기 */
+    display: block;
 }
 
 /* 오른쪽 상단 아이콘 영역 */
 .icon-bar {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  display: flex;
-  gap: 8px;
-  align-items: center;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
 }
 
 .icon-bar .circle {
-  width: 16px;
-  height: 16px;
-  background: white;
-  border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    background: white;
+    border-radius: 50%;
 }
 
 /* 버튼 영역 */
 .button-section {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 48px;
-  padding: 60px 0;
-  background: #e6eaff;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 48px;
+    padding: 60px 0;
+    background: #e6eaff;
+
+    /* ✅ 흰 띠 완전 제거 */
+    margin-top: -20px;
 }
 
 /* 버튼 스타일 */
 .custom-button {
-  padding: 14px 32px;
-  border: 2px solid #1e3a8a; /* 남색 테두리 */
-  border-radius: 0;
-  color: #1e3a8a;
-  font-weight: 600;
-  font-size: 18px;
-  text-decoration: none; /* 링크 밑줄 제거 */
-  transition: background 0.3s;
+    padding: 14px 32px;
+    border: 2px solid #1e3a8a; /* 남색 테두리 */
+    border-radius: 0;
+    color: #1e3a8a;
+    font-weight: 600;
+    font-size: 18px;
+    text-decoration: none; /* 링크 밑줄 제거 */
+    transition: background 0.3s;
 }
 
 .custom-button:hover {
-  background: #e8f0ff;   /* hover 시 옅은 파랑 배경 */
+    background: #e8f0ff;   /* hover 시 옅은 파랑 배경 */
 }
+
 /* 상단 네이비색 바 */
 .top-bar {
-  width: 100vw;
-  height: 40px;
-  background-color: #0f1b46; /* 네이비 */
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 10px;
-  padding-right: 40px;
+    width: 100vw;
+    height: 40px;
+    background-color: #0f1b46; /* 네이비 */
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    padding-right: 40px;
 }
 
 /* 흰색 동그라미 */
 .top-bar .circle {
-  width: 14px;
-  height: 14px;
-  background: white;
-  border-radius: 50%;
+    width: 14px;
+    height: 14px;
+    background: white;
+    border-radius: 50%;
 }
+
 /* 톱니바퀴 공통 */
 .gear {
-  position: absolute;
-  animation: spin 20s linear infinite;
-  opacity: 0.95;
-  z-index: 1;
+    position: absolute;
+    animation: spin 20s linear infinite;
+    opacity: 0.95;
+    z-index: 1;
 
-  /* 그림자: 어두운 느낌 + 살짝 흐림 */
-  filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.25));
+    /* 그림자: 어두운 느낌 + 살짝 흐림 */
+    filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.25));
 }
 
 /* 왼쪽 큰 톱니 */
 .gear-left {
-  width: 360px;
-  height: 360px;
-  left: 40px;
-  bottom: 20px;
-  animation-duration: 25s;
+    width: 360px;
+    height: 360px;
+    left: 40px;
+    bottom: 20px;
+    animation-duration: 25s;
 }
 
 /* 오른쪽 중간 톱니 */
 .gear-right {
-  width: 300px;
-  height: 300px;
-  right: 100px;
-  bottom: 40px;
-  animation-duration: 15s; /* 큰 톱니 */
+    width: 300px;
+    height: 300px;
+    right: 100px;
+    bottom: 40px;
+    animation-duration: 15s; /* 큰 톱니 */
 }
 
 /* 오른쪽 작은 톱니 */
 .gear-small {
-  width: 200px;
-  height: 200px;
-  right: 8px;
-  bottom: 30px;
-  animation-duration: 7.4s;  /* 큰 톱니(15s)의 1/3 속도 */
-  animation-direction: reverse; /* 반대 방향 */
+    width: 200px;
+    height: 200px;
+    right: 8px;
+    bottom: 30px;
+    animation-duration: 7.4s;  /* 큰 톱니(15s)의 1/3 속도 */
+    animation-direction: reverse; /* 반대 방향 */
 }
 
 /* 회전 애니메이션 */
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
 }

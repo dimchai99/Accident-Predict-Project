@@ -2,7 +2,7 @@
 from fastapi import APIRouter, HTTPException, Query,  Path
 from typing import Dict, Any
 from app.db import get_cursor
-from app.run_RUL import compute_rul_from_sample
+from app.run_RUL_NEW import compute_rul_for_sample
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/runrisk", tags=["runrisk"])
@@ -63,7 +63,9 @@ def rul_sample_path(
     try:
         print("📌 요청된 mode:", mode)
         print("📌 요청된 blade_id:", blade_id)
-        result = compute_rul_from_sample(mode=mode, blade_id=blade_id)
+        result = compute_rul_for_sample(mode = mode, blade_id = blade_id)
+        print("✅ 라우터에서 호출된 함수 compute_rul_for_sample")
+        print(result)
         # result는 {"health_now": float|None, "rul_days": float|None, "pred_end_date": "YYYY-MM-DD"|None}
         return {
             "mode": mode,
@@ -73,26 +75,3 @@ def rul_sample_path(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"DB error: {e}")
 
-
-'''
-@router.get("/rul_sample")
-def get_rul_sample(
-        mode: int = Query(..., ge=1),
-        blade_id: int = Query(..., ge=0),
-) -> Dict[str, Any]:
-    """
-    프런트에서 전달한 mode, blade_id를 그대로 compute_rul_from_sample에 넣어서
-    계산 결과(dict)를 JSON으로 반환.
-    """
-    try:
-        print(f"[rul_sample] mode={mode}, blade_id={blade_id}", flush=True)
-        #result = compute_rul_from_sample(mode, blade_id)   # ★ 여기!
-        #print(f"[rul_sample] result={result}", flush=True)
-        #return result
-    except ValueError as ve:
-        # SAMPLE_MAP에 키가 없을 때 등
-        raise HTTPException(status_code=404, detail=str(ve))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"RUL error: {e}")
-
-'''

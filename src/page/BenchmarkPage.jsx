@@ -15,7 +15,11 @@ import {
     Tooltip,
     Legend,
     ResponsiveContainer,
+    BarChart,
+    Bar,
+    Cell
 } from "recharts";
+
 
 // 백엔드 주소 (.env에서 REACT_APP_PY_BASE로 덮어쓰기 가능)
 const BASE_URL = process.env.REACT_APP_PY_BASE || "http://127.0.0.1:8000";
@@ -40,9 +44,13 @@ const tableData = [
     { id: "Blade-001" },
     { id: "Blade-002" },
     { id: "Blade-003" },
-    { id: "Blade-004" },
-    { id: "Blade-005" },
+    { id: "Blade-004" }
+];
 
+// ✅ 예시용 바차트 데이터
+const barData = [
+    { name: "정상", value: 3 , status: "정상"},
+    { name: "불량", value: 1 , status: "불량" }
 ];
 
 export default function Benchmark() {
@@ -111,7 +119,7 @@ export default function Benchmark() {
         }
     };
 
-// 검색 핸들러: 검색 시 결과만 갱신 (페이지 리셋 같은 건 필요 없음)
+    // 검색 핸들러
     const handleSearch = () => {
         const term = searchTerm.trim().toLowerCase();
         if (!term) {
@@ -119,7 +127,7 @@ export default function Benchmark() {
             return;
         }
         const result = tableData.filter((row) =>
-            row.id.toLowerCase().includes(term)   // 부분 일치
+            row.id.toLowerCase().includes(term)
         );
         setFilteredData(result);
     };
@@ -140,8 +148,8 @@ export default function Benchmark() {
 
     const healthClass = (h) => {
         if (h == null) return "text-muted";
-        if (h >= 70) return "text-primary";   // 매우 양호 → 초록
-        return "text-danger";                 // 교체 권고 → 빨강
+        if (h >= 70) return "text-primary";
+        return "text-danger";
     };
 
     return (
@@ -198,31 +206,28 @@ export default function Benchmark() {
                             )}
                         </div>
                     </div>
-
                 </aside>
 
                 {/* 콘텐츠 */}
                 <main className="content">
                     <h1 className="page-title">Benchmark</h1>
-                    {/* 수정된 부제목 */}
-                    <div className="page-subtitle">
-                        Dashboard
-                    </div>
+                    <div className="page-subtitle">Dashboard</div>
 
-                    {/* 점수 + 메시지 */}
+                    {/* 점수 + 메시지 + 바차트 */}
                     <div className="d-flex gap-3 mb-4">
+                        {/* Health 카드 */}
                         <div className="card equal-card">
                             <div className="card-header custom-card-header">
-                                <i className="fas fa-star me-1"></i> Health 점수
+                                <i className="fas fa-robot me-1"></i> Health 점수
                             </div>
-                            <div className="card-body text-center">
+                            <div className="card-body text-center" style={{display : "flex", alignItems :"center", justifyContent : "center", flexDirection : "row"}}>
                                 {loading ? (
                                     <p className="text-secondary m-0">불러오는 중…</p>
                                 ) : err ? (
                                     <p className="text-danger m-0">{err}</p>
                                 ) : (
-                                    <>
-                                        <p className="display-6 text-primary m-0">
+                                    <div>
+                                        <p className={`display-6 m-0 ${healthClass(health)}`}>
                                             {health == null ? "—" : `${health.toFixed(2)}%`}
                                         </p>
                                         <small className="text-muted">
@@ -230,15 +235,17 @@ export default function Benchmark() {
                                                 ? `ID: ${selectedId}`
                                                 : "테이블에서 ID를 클릭하세요"}
                                         </small>
-                                    </>
+                                    </div>
                                 )}
                             </div>
                         </div>
+
+                        {/* 메시지 카드 */}
                         <div className="card equal-card">
                             <div className="card-header custom-card-header">
-                                <i className="fas fa-comment me-1"></i> 메시지
+                                <i className="fas fa-comment me-1"></i> 상태
                             </div>
-                            <div className="card-body text-center" style={{display:'flex', justifyContent:'centrt', alignItems:'center'}}>
+                            <div className="card-body text-center d-flex justify-content-center align-items-center">
                                 {loading ? (
                                     <p className="text-secondary m-0">불러오는 중…</p>
                                 ) : err ? (
@@ -250,9 +257,32 @@ export default function Benchmark() {
                                 )}
                             </div>
                         </div>
+
+                        {/* ✅ BarChart 카드 (작게 줄임) */}
+                        <div className="card equal-card" style={{ flex: 0.7 }}>
+                            <div className="card-header custom-card-header">
+                                <i className="fas fa-chart-bar me-1"></i>상태별 재고 갯수
+                            </div>
+                            <div className="card-body">
+                                <BarChart width={300} height={200} data={barData}>
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis dataKey="name" />
+                                    <YAxis />
+                                    <Tooltip />
+                                    <Bar dataKey="value">
+                                        {barData.map((entry, index) => (
+                                            <Cell
+                                                key={`cell-${index}`}
+                                                fill={entry.status === "불량" ? "red" : "#007bff"}
+                                            />
+                                        ))}
+                                    </Bar>
+                                </BarChart>
+                            </div>
+                        </div>
                     </div>
 
-                    {/* 그래프 */}
+                    {/* 라인차트 (ResponsiveContainer로 되돌림) */}
                     <div className="card mb-4 chart-card">
                         <div className="card-header custom-card-header">
                             <i className="fas fa-chart-line me-1"></i>
@@ -262,7 +292,7 @@ export default function Benchmark() {
                             {mseLoading ? (
                                 <div className="text-secondary">그래프 불러오는 중…</div>
                             ) : hasMse ? (
-                                <ResponsiveContainer width="100%" height={300}>
+                                <ResponsiveContainer width="20%" height={400}>
                                     <ComposedChart data={mseRows}>
                                         <CartesianGrid stroke="#f5f5f5" />
                                         <XAxis dataKey="time" minTickGap={28} />
